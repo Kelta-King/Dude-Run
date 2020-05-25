@@ -191,22 +191,27 @@ var game = new Phaser.Game(config);
     {
 		cursors = this.input.keyboard.createCursorKeys();
 		
-		if(cursors.left.isDown){
+		if(cursors.left.isDown || leftMove){
 			player.setVelocityX(-160);
-			player.anims.play('left', true)
+			player.anims.play('left', true);
+			rightMove = false;
 		}
-		else if(cursors.right.isDown){
+		else if(cursors.right.isDown || rightMove){
 			player.setVelocityX(160);
-			player.anims.play('right', true)
+			player.anims.play('right', true);
+			leftMove = false;
 		}
 		else{
 			player.setVelocityX(0);
 			player.anims.play('turn');
+			
 		}
 		
-		if (cursors.space.isDown && player.body.touching.down){
+
+		if ((cursors.space.isDown || jump) && player.body.touching.down){
 			jumpsound.play();
 			player.setVelocityY(-500);
+			jump = false;
 		}
     }
 	
