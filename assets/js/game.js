@@ -55,15 +55,18 @@ var game = new Phaser.Game(config);
 
     function preload ()
     {
-		this.load.image('sky','assets/sky.png');
-		this.load.image('bomb','assets/bomb.png');
-		this.load.image('ground','assets/platform.png');
-		this.load.image('star','assets/star.png');
-		this.load.spritesheet('dude', 'assets/dude.png',{frameWidth: 32, frameHeight: 48});
-		this.load.audio('bgaudio', ['assets/audio/518899__szymalix__cm.wav']);
-		this.load.audio('jumpaudio', ['assets/audio/386647__jalastram__sfx-jump-15.wav']);
-		this.load.audio('goaudio', ['assets/audio/487124__sjleilani__game-over.m4a']);
-		this.load.audio('staraudio', ['assets/audio/518733__robinhood76__08935-game-gold-bonus.wav']);
+	this.load.image('sky','assets/sky.png');
+	this.load.image('bomb','assets/bomb.png');
+	this.load.image('ground','assets/platform.png');
+	this.load.image('star','assets/star.png');
+	this.load.spritesheet('dude', 'assets/dude.png',{frameWidth: 32, frameHeight: 48});
+	this.load.audio('bgaudio', ['assets/audio/518899__szymalix__cm.wav']);
+	this.load.audio('jumpaudio', ['assets/audio/386647__jalastram__sfx-jump-15.wav']);
+	this.load.audio('goaudio', ['assets/audio/487124__sjleilani__game-over.m4a']);
+	this.load.audio('staraudio', ['assets/audio/518733__robinhood76__08935-game-gold-bonus.wav']);
+	this.load.image('right', 'assets/right.png');
+	this.load.image('left', 'assets/left.png');
+	this.load.image('jump', 'assets/jump.png');
     }
 
     function create ()
