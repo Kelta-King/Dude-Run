@@ -173,6 +173,20 @@ var game = new Phaser.Game(config);
 		this.jumpBtn.on('pointerdown', toJump);
     }
 
+    function toRight(){
+	rightMove = true;
+	leftMove = false;
+    }
+	
+    function toLeft(){
+	leftMove = true;
+	rightMove = false;
+    }
+	
+    function toJump() {
+	jump = true;
+    }
+
     function update ()
     {
 		cursors = this.input.keyboard.createCursorKeys();
