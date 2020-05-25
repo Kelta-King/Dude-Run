@@ -49,7 +49,10 @@ var game = new Phaser.Game(config);
 	var gosound;
 	var starsound;
 	var grav=300;
-	
+	var rightMove = false;
+	var leftMove = false;
+	var jump = false;
+
     function preload ()
     {
 		this.load.image('sky','assets/sky.png');
