@@ -165,6 +165,12 @@ var game = new Phaser.Game(config);
 		starsound = this.sound.add('staraudio', audioConfig);
 		music.play();
 		
+	    	this.rightBtn = this.add.image(200, 550, 'right').setInteractive();
+		this.leftBtn = this.add.image(100, 550, 'left').setInteractive();
+		this.jumpBtn = this.add.image(700, 550, 'jump').setInteractive();
+		this.rightBtn.on('pointerdown', toRight);
+		this.leftBtn.on('pointerdown', toLeft);
+		this.jumpBtn.on('pointerdown', toJump);
     }
 
     function update ()
