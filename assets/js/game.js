@@ -67,6 +67,7 @@ var game = new Phaser.Game(config);
 	this.load.image('ground','assets/platform.png');
 	this.load.image('star','assets/star.png');
 	this.load.spritesheet('dude', 'assets/dude.png',{frameWidth: 32, frameHeight: 48});
+	this.load.spritesheet('fullscreen', 'assets/fullscreen.png', { frameWidth: 64, frameHeight: 64 });
 	this.load.audio('bgaudio', ['assets/audio/518899__szymalix__cm.wav']);
 	this.load.audio('jumpaudio', ['assets/audio/386647__jalastram__sfx-jump-15.wav']);
 	this.load.audio('goaudio', ['assets/audio/487124__sjleilani__game-over.m4a']);
