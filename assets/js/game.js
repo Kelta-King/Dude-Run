@@ -25,43 +25,42 @@ var config = {
 		
     };
 var game = new Phaser.Game(config);
-	var platforms;
-	var player;
-	var cursors;
-	var stars;
-	var score=0;
-	var scoreText;
-	var bombs;
-	var music;
-	var audiodata;
-	var jumpsound;
-	var audioConfig = {
-		mute: false,
-		volume: 1,
-		rate: 1,
-		detune: 0,
-		seek: 0,
-		loop: false,
-		delay: 0
-	}
-	var audioConfigbg = {
-		mute: false,
-		volume: 1,
-		rate: 1,
-		detune: 0,
-		seek: 0,
-		loop: true,
-		delay: 0
-	}
-	var gosound;
-	var starsound;
-	var grav=300;
-	var rightMove = false;
-	var leftMove = false;
-	var jump = false;
-
-    function preload ()
-    {
+var platforms;
+var player;
+var cursors;
+var stars;
+var score=0;
+var scoreText;
+var bombs;
+var music;
+var audiodata;
+var jumpsound;
+var audioConfig = {
+	mute: false,
+	volume: 1,
+	rate: 1,
+	detune: 0,
+	seek: 0,
+	loop: false,
+	delay: 0
+}
+var audioConfigbg = {
+	mute: false,
+	volume: 1,
+	rate: 1,
+	detune: 0,
+	seek: 0,
+	loop: true,
+	delay: 0
+}
+var gosound;
+var starsound;
+var grav=300;
+var rightMove = false;
+var leftMove = false;
+var jump = false;
+function preload ()
+{
 	this.load.image('sky','assets/sky.png');
 	this.load.image('bomb','assets/bomb.png');
 	this.load.image('ground','assets/platform.png');
@@ -75,156 +74,168 @@ var game = new Phaser.Game(config);
 	this.load.image('right', 'assets/right.png');
 	this.load.image('left', 'assets/left.png');
 	this.load.image('jump', 'assets/jump.png');
-    }
+}
 
-    function create ()
-    {
-		this.add.image(400, 300, 'sky');
-		scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
-		bombs = this.physics.add.group();
+function create ()
+{
+	this.add.image(400, 300, 'sky');
+	scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
+	bombs = this.physics.add.group();
+	
+	platforms = this.physics.add.staticGroup();
+	
+	platforms.create(400,568, 'ground').setScale(2).refreshBody();
+	platforms.create(600, 400, 'ground');
+	platforms.create(50, 250, 'ground');
+	platforms.create(750, 220, 'ground');
+	
+	player = this.physics.add.sprite(100, 450, 'dude');
+	player.body.setGravityY(grav);
+	this.physics.add.collider(player, platforms);
 		
-		platforms = this.physics.add.staticGroup();
-		
-		platforms.create(400,568, 'ground').setScale(2).refreshBody();
-		platforms.create(600, 400, 'ground');
-		platforms.create(50, 250, 'ground');
-		platforms.create(750, 220, 'ground');
-		
-		player = this.physics.add.sprite(100, 450, 'dude');
-		player.body.setGravityY(grav);
-		this.physics.add.collider(player, platforms);
-		
-		player.setBounce(0.2);
-		player.setCollideWorldBounds(true);
+	player.setBounce(0.2);
+	player.setCollideWorldBounds(true);
+	this.anims.create({
+		key: 'left',
+		frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+		frameRate: 10,
+		repeat: -1
+	});
 
-		this.anims.create({
-			key: 'left',
-			frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-			frameRate: 10,
-			repeat: -1
-		});
+	this.anims.create({
+		key: 'turn',
+		frames: [ { key: 'dude', frame: 4 } ],
+		frameRate: 20
+	});
 
-		this.anims.create({
-			key: 'turn',
-			frames: [ { key: 'dude', frame: 4 } ],
-			frameRate: 20
-		});
+	this.anims.create({
+		key: 'right',
+		frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+		frameRate: 10,
+		repeat: -1
+	});
+		
+	stars = this.physics.add.group({
+		key: 'star',
+		repeat: 11,
+		setXY: { x: 12, y: 0, stepX: 70 }
+	});
 
-		this.anims.create({
-			key: 'right',
-			frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-			frameRate: 10,
-			repeat: -1
-		});
+	stars.children.iterate(function (child) {
+		child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+	});
 		
-		stars = this.physics.add.group({
-			key: 'star',
-			repeat: 11,
-			setXY: { x: 12, y: 0, stepX: 70 }
-		});
+	this.physics.add.collider(stars, platforms);
+	this.physics.add.overlap(player, stars, collectStar, null, this);
+	
+    	var button = this.add.image(800-16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
 
-		stars.children.iterate(function (child) {
-			child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-		});
+	button.on('pointerup', function () {
+
+	    if (this.scale.isFullscreen)
+	    {
+		button.setFrame(0);
+		this.scale.stopFullscreen();
+	    }
+	    else
+	    {
+		button.setFrame(1);
+		this.scale.startFullscreen();
+	    }
+
+	}, this);
+
+	function collectStar (player, star)
+	{
+		starsound.play();
+		star.disableBody(true, true);
+		score+=10;
+		scoreText.setText("Score: "+score);
 		
-		this.physics.add.collider(stars, platforms);
-		this.physics.add.overlap(player, stars, collectStar, null, this);
-		
-		function collectStar (player, star)
-		{
-			starsound.play();
-			star.disableBody(true, true);
-			score+=10;
-			scoreText.setText("Score: "+score);
-			
-			if(stars.countActive(true) === 0){
-			
-				stars.children.iterate(function (child) {
-					child.enableBody(true, child.x, 0, true, true);
-				});
+		if(stars.countActive(true) === 0){
+			stars.children.iterate(function (child) {
+				child.enableBody(true, child.x, 0, true, true);
+			});
 				
-				var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-				var bomb = bombs.create(x, 16, 'bomb');
-				bomb.setBounce(1);
-				bomb.setCollideWorldBounds(true);
-				bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+			var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+			var bomb = bombs.create(x, 16, 'bomb');
+			bomb.setBounce(1);
+			bomb.setCollideWorldBounds(true);
+			bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
 		
-			}
 		}
+	}
 		
-		this.physics.add.collider(platforms, bombs);
-		this.physics.add.collider(player, bombs, hitBomb, null, this);
+	this.physics.add.collider(platforms, bombs);
+	this.physics.add.collider(player, bombs, hitBomb, null, this);
 		
-		function hitBomb (){
+	function hitBomb (){
 		
-			this.physics.pause();
-			player.setTint(0xff0000);
-			player.anims.play('turn');
-			gameOver = true;
-			gosound.play();
-			music.stop();
-			jumpsound.stop();
-		}
-		
-		music = this.sound.add('bgaudio', audioConfigbg);
-		jumpsound = this.sound.add('jumpaudio', audioConfig);
-		gosound = this.sound.add('goaudio', audioConfig);
-		starsound = this.sound.add('staraudio', audioConfig);
-		music.play();
-		
-	    	this.rightBtn = this.add.image(200, 550, 'right').setInteractive();
-		this.leftBtn = this.add.image(100, 550, 'left').setInteractive();
-		this.jumpBtn = this.add.image(700, 550, 'jump').setInteractive();
-		this.rightBtn.on('pointerdown', toRight);
-		this.leftBtn.on('pointerdown', toLeft);
-		this.jumpBtn.on('pointerdown', toJump);
-    }
+		this.physics.pause();
+		player.setTint(0xff0000);
+		player.anims.play('turn');
+		gameOver = true;
+		gosound.play();
+		music.stop();
+		jumpsound.stop();
+	}
+	
+	music = this.sound.add('bgaudio', audioConfigbg);
+	jumpsound = this.sound.add('jumpaudio', audioConfig);
+	gosound = this.sound.add('goaudio', audioConfig);
+	starsound = this.sound.add('staraudio', audioConfig);
+	music.play();
+	
+    	this.rightBtn = this.add.image(200, 550, 'right').setInteractive();
+	this.leftBtn = this.add.image(100, 550, 'left').setInteractive();
+	this.jumpBtn = this.add.image(700, 550, 'jump').setInteractive();
+	this.rightBtn.on('pointerdown', toRight);
+	this.leftBtn.on('pointerdown', toLeft);
+	this.jumpBtn.on('pointerdown', toJump);
+}
 
-    function toRight(){
+function toRight(){
 	rightMove = true;
 	leftMove = false;
-    }
-	
-    function toLeft(){
+}
+
+function toLeft(){
 	leftMove = true;
 	rightMove = false;
-    }
+}
 	
-    function toJump() {
+function toJump() {
 	jump = true;
-    }
+}
 
-    function update ()
-    {
-		cursors = this.input.keyboard.createCursorKeys();
+function update ()
+{
+	cursors = this.input.keyboard.createCursorKeys();
 		
-		if(cursors.left.isDown || leftMove){
-			player.setVelocityX(-160);
-			player.anims.play('left', true);
-			rightMove = false;
-		}
-		else if(cursors.right.isDown || rightMove){
-			player.setVelocityX(160);
-			player.anims.play('right', true);
-			leftMove = false;
-		}
-		else{
-			player.setVelocityX(0);
-			player.anims.play('turn');
-			
-		}
-		
-
-		if ((cursors.space.isDown || jump) && player.body.touching.down){
-			jumpsound.play();
-			player.setVelocityY(-500);
-			jump = false;
-		}
-    }
-	
-	function render() {
-		
-		game.debug.soundInfo(music, 20, 32);
-	
+	if(cursors.left.isDown || leftMove){
+		player.setVelocityX(-160);
+		player.anims.play('left', true);
+		rightMove = false;
 	}
+	else if(cursors.right.isDown || rightMove){
+		player.setVelocityX(160);
+		player.anims.play('right', true);
+		leftMove = false;
+	}
+	else{
+		player.setVelocityX(0);
+		player.anims.play('turn');
+		
+	}
+		
+
+	if ((cursors.space.isDown || jump) && player.body.touching.down){
+		jumpsound.play();
+		player.setVelocityY(-500);
+		jump = false;
+	}
+}
+	
+function render() {
+	game.debug.soundInfo(music, 20, 32);
+}
